@@ -26,6 +26,7 @@ from randovania.game_description.world.hint_node import HintNodeKind, HintNode
 from randovania.game_description.world.node import Node, GenericNode
 from randovania.game_description.world.pickup_node import PickupNode
 from randovania.game_description.world.teleporter_network_node import TeleporterNetworkNode
+from randovania.game_description.world.remote_activation_node import RemoteActivationNode
 from randovania.game_description.world.teleporter_node import TeleporterNode
 from randovania.game_description.world.world import World
 from randovania.game_description.world.world_list import WorldList
@@ -311,6 +312,11 @@ def write_node(node: Node) -> dict:
         data["is_unlocked"] = write_requirement(node.is_unlocked)
         data["network"] = node.network
         data["requirement_to_activate"] = write_requirement(node.requirement_to_activate)
+
+    elif isinstance(node, RemoteActivationNode):
+        data["node_type"] = "remote_activation"
+        data.update(common_fields)
+        data["remote_identifier"] = node.remote_identifier.as_json
 
     else:
         raise ValueError(f"Unknown node class: {node}")

@@ -19,6 +19,8 @@ from randovania.game_description.world.hint_node import HintNodeKind, HintNode
 from randovania.game_description.world.node import Node, GenericNode, NodeLocation
 from randovania.game_description.world.pickup_node import PickupNode
 from randovania.game_description.world.teleporter_network_node import TeleporterNetworkNode
+from randovania.game_description.world.remote_activation_node import RemoteActivationNode
+from randovania.game_description.world.resource_node import ResourceNode
 from randovania.game_description.world.teleporter_node import TeleporterNode
 from randovania.game_description.world.world import World
 from randovania.gui.dialog.connections_editor import ConnectionsEditor
@@ -57,6 +59,7 @@ class NodeDetailsPopup(QtWidgets.QDialog, Ui_NodeDetailsPopup):
             ConfigurableNode: self.tab_configurable,
             HintNode: self.tab_hint,
             TeleporterNetworkNode: self.tab_teleporter_network,
+            RemoteActivationNode: self.tab_remote_activation,
         }
         tab_to_type = {tab: node_type for node_type, tab in self._type_to_tab.items()}
 
@@ -103,6 +106,8 @@ class NodeDetailsPopup(QtWidgets.QDialog, Ui_NodeDetailsPopup):
         self.hint_requirement_to_collect_button.clicked.connect(self.on_hint_requirement_to_collect_button)
         self.teleporter_network_unlocked_button.clicked.connect(self.on_teleporter_network_unlocked_button)
         self.teleporter_network_activate_button.clicked.connect(self.on_teleporter_network_activated_button)
+        self.remote_activation_world_combo.currentIndexChanged.connect(self.on_remote_activation_world_combo)
+        self.remote_activation_area_combo.currentIndexChanged.connect(self.on_remote_activation_area_combo)
 
         # Hide the tab bar
         tab_bar: QtWidgets.QTabBar = self.tab_widget.findChild(QtWidgets.QTabBar)
@@ -159,6 +164,10 @@ class NodeDetailsPopup(QtWidgets.QDialog, Ui_NodeDetailsPopup):
         elif isinstance(node, TeleporterNetworkNode):
             self.fill_for_teleporter_network(node)
             return self.tab_teleporter_network
+
+        elif isinstance(node, RemoteActivationNode):
+            self.fill_for_remote_activation_node(node)
+            return self.tab_remote_activation
 
         else:
             raise ValueError(f"Unknown node type: {node}")
@@ -250,6 +259,18 @@ class NodeDetailsPopup(QtWidgets.QDialog, Ui_NodeDetailsPopup):
             False
         )
 
+    def fill_for_remote_activation_node(self, node: RemoteActivationNode):
+        # Remote Node
+        other_node = self.game.world_list.node_by_identifier(node.remote_identifier)
+        area = self.game.world_list.nodes_to_area(other_node)
+        world = self.game.world_list.nodes_to_world(other_node)
+
+        self.remote_activation_world_combo.setCurrentIndex(self.remote_activation_world_combo.findData(world))
+        refresh_if_needed(self.remote_activation_world_combo, self.on_remote_activation_world_combo)
+        self.remote_activation_area_combo.setCurrentIndex(self.remote_activation_area_combo.findData(area))
+        refresh_if_needed(self.remote_activation_area_combo, self.on_remote_activation_area_combo)
+        self.remote_activation_node_combo.setCurrentIndex(self.remote_activation_node_combo.findData(other_node))
+
     # Signals
     def on_name_edit(self, value: str):
         has_error = False
@@ -338,6 +359,26 @@ class NodeDetailsPopup(QtWidgets.QDialog, Ui_NodeDetailsPopup):
         finally:
             self._edit_popup = None
 
+    def on_remote_activation_world_combo(self, _):
+        world: World = self.remote_activation_world_combo.currentData()
+
+        self.remote_activation_area_combo.clear()
+        for area in sorted(world.areas, key=lambda x: x.name):
+            self.remote_activation_area_combo.addItem(area.name, userData=area)
+
+    def on_remote_activation_area_combo(self, _):
+        area: Area | None = self.remote_activation_area_combo.currentData()
+
+        self.remote_activation_node_combo.clear()
+        empty = True
+        if area is not None:
+            for node in area.nodes:
+                if isinstance(node, (ResourceNode, DockNode)) and not node.is_derived_node and node != self.node:
+                    self.remote_activation_node_combo.addItem(node.name, userData=node)
+                    empty = False
+        if empty:
+            self.remote_activation_node_combo.addItem("Other", None)
+
     # Final
     def create_new_node(self) -> Node:
         node_type = self.node_type_combo.currentData()
@@ -415,6 +456,14 @@ class NodeDetailsPopup(QtWidgets.QDialog, Ui_NodeDetailsPopup):
                 self._unlocked_by_requirement,
                 self.teleporter_network_edit.text(),
                 self._activated_by_requirement,
+            )
+
+        elif node_type == RemoteActivationNode:
+            connection_node: Node = self.remote_activation_node_combo.currentData()
+
+            return RemoteActivationNode(
+                identifier, node_index, heal, location, description, layers, extra,
+                connection_node.identifier,
             )
 
         else:

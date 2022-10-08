@@ -40,6 +40,7 @@ from randovania.game_description.world.node import (
 from randovania.game_description.world.node_identifier import NodeIdentifier
 from randovania.game_description.world.pickup_node import PickupNode
 from randovania.game_description.world.teleporter_network_node import TeleporterNetworkNode
+from randovania.game_description.world.remote_activation_node import RemoteActivationNode
 from randovania.game_description.world.teleporter_node import TeleporterNode
 from randovania.game_description.world.world import World
 from randovania.game_description.world.world_list import WorldList
@@ -370,6 +371,12 @@ class WorldReader:
                     is_unlocked=read_requirement(data["is_unlocked"], self.resource_database),
                     network=data["network"],
                     requirement_to_activate=read_requirement(data["requirement_to_activate"], self.resource_database),
+                )
+
+            elif node_type == "remote_activation":
+                return RemoteActivationNode(
+                    **generic_args,
+                    remote_identifier=NodeIdentifier.from_json(data["remote_identifier"]),
                 )
 
             else:

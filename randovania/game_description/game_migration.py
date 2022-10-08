@@ -165,6 +165,7 @@ _MIGRATIONS = [
     _migrate_v10,
     _migrate_v11,
     _migrate_v12,
+    lambda it: it,  # RemoteActivationNode added
 ]
 CURRENT_VERSION = migration_lib.get_version(_MIGRATIONS)
 

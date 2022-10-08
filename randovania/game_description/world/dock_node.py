@@ -11,6 +11,9 @@ from randovania.game_description.world.dock import DockType, DockWeakness, DockL
 from randovania.game_description.world.node import Node, NodeContext
 from randovania.game_description.world.node_identifier import NodeIdentifier
 
+if typing.TYPE_CHECKING:
+    from randovania.game_description.world.dock_lock_node import DockLockNode
+
 
 def _requirement_from_back(context: NodeContext, target_node: Node) -> ResourceRequirement | None:
     if isinstance(target_node, DockNode):
@@ -39,7 +42,7 @@ class DockNode(Node):
     default_dock_weakness: DockWeakness
     override_default_open_requirement: Requirement | None
     override_default_lock_requirement: Requirement | None
-    lock_node: Node | None = dataclasses.field(init=False, hash=False, compare=False, default=None)
+    lock_node: DockLockNode | None = dataclasses.field(init=False, hash=False, compare=False, default=None)
     cache_default_connection: int | None = dataclasses.field(init=False, hash=False, compare=False, default=None)
 
     def __repr__(self):

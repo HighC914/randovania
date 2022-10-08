@@ -179,7 +179,7 @@ class NodeAdapter(construct.Adapter):
 
 ConstructNode = NodeAdapter(Struct(
     node_type=construct.Enum(Byte, generic=0, dock=1, pickup=2, teleporter=3, event=4, configurable_node=5,
-                             hint=6, teleporter_network=7),
+                             hint=6, teleporter_network=7, remote_activation=8),
     data=Switch(
         lambda this: this.node_type,
         {
@@ -223,6 +223,11 @@ ConstructNode = NodeAdapter(Struct(
                 network=String,
                 requirement_to_activate=ConstructRequirement,
             )
+            ),
+            "remote_activation": Struct(
+                **NodeBaseFields,
+                remote_identifier=ConstructNodeIdentifier,
+            ),
         }
     )))
 
