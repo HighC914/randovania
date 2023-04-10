@@ -220,7 +220,7 @@ pyqtdarktheme==2.1.0
     # via randovania (setup.py)
 pyrsistent==0.19.3
     # via jsonschema
-pyside6-essentials==6.4.2
+pyside6-essentials==6.5.0
     # via randovania (setup.py)
 pytest==7.2.0
     # via
@@ -273,7 +273,7 @@ retro-data-structures==0.18.0
     #   randovania (setup.py)
 sentry-sdk==1.17.0
     # via randovania (setup.py)
-shiboken6==6.4.2
+shiboken6==6.5.0
     # via pyside6-essentials
 six==1.16.0
     # via
