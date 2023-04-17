@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [?.?.0] - 2023-06-??
 
+- WIP: New multiworld in progress (TODO: proper message when done)
 - Changed: The resolver now allows dangerous resources in additional resources.
 - Changed: Some preset options which are not ready for wide consumption have been hidden by default. To show all preset options, please select `Advanced > Show Experimental Settings`.
 
